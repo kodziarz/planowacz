@@ -1,18 +1,47 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { View, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { I18nProvider } from '@/i18n';
+import { StoreProvider, useStore } from '@/store/store-provider';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function TabLayout() {
+function RootStack() {
+  return (
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="task/new" options={{ presentation: 'card' }} />
+      <Stack.Screen name="task/[id]" options={{ presentation: 'card' }} />
+      <Stack.Screen name="category/new" options={{ presentation: 'card' }} />
+      <Stack.Screen name="category/[id]" options={{ presentation: 'card' }} />
+    </Stack>
+  );
+}
+
+/** Waits for persisted data, then mounts the app localized with the stored language. */
+function AppGate() {
+  const { loaded, settings } = useStore();
+  if (!loaded) return <View style={{ flex: 1 }} />;
+  return (
+    <I18nProvider language={settings.language}>
+      <RootStack />
+    </I18nProvider>
+  );
+}
+
+export default function RootLayout() {
   const colorScheme = useColorScheme();
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
+      <StoreProvider>
+        <AnimatedSplashOverlay />
+        <AppGate />
+        <StatusBar style="auto" />
+      </StoreProvider>
     </ThemeProvider>
   );
 }

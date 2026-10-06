@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AddressSuggestions } from './address-suggestions';
 import { AppButton } from './button';
 import { TextField } from './text-field';
 import { ThemedText } from './themed-text';
@@ -146,6 +147,14 @@ export function SituationForm({ situationId }: SituationFormProps) {
           setCoords(null);
         }}
         placeholder={t('situations.localizationPlaceholder')}
+      />
+      <AddressSuggestions
+        query={localization}
+        lang={locale}
+        onSelect={(suggestion) => {
+          setLocalization(suggestion.label);
+          setCoords(suggestion.point);
+        }}
       />
       <AppButton label={t('situations.gps')} variant="secondary" onPress={() => void locateByGps()} />
 

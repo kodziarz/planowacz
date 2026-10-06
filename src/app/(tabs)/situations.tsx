@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AddressSuggestions } from '@/components/address-suggestions';
 import { AppButton } from '@/components/button';
 import { Screen } from '@/components/screen';
 import { TextField } from '@/components/text-field';
@@ -64,6 +65,16 @@ export default function SituationsScreen() {
           value={address}
           onChangeText={setAddress}
           placeholder={t('situations.referencePlaceholder')}
+        />
+        <AddressSuggestions
+          query={address}
+          lang={locale}
+          onSelect={(suggestion) => {
+            setAddress(suggestion.label);
+            setReference(suggestion.point);
+            setNotice(null);
+            setSortMode('distance');
+          }}
         />
         <View style={styles.actions}>
           <AppButton

@@ -21,7 +21,7 @@ export interface TimeAmountInputProps {
   min: number;
   max: number;
   step: number;
-  /** Set to false to render the typed h/m inputs only (quick-add modal). */
+  /** Set to false to render the typed h/m inputs only. */
   slider?: boolean;
   sliderHint?: string;
   testID?: string;

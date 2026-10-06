@@ -64,7 +64,7 @@ export interface StoreValue {
   updateTask: (id: string, patch: Partial<Task>) => void;
   setTaskStatus: (id: string, status: TaskStatus) => void;
   /** Appends a time-log entry; a pending task automatically becomes in progress. */
-  addTimeEntry: (taskId: string, minutes: number) => void;
+  addTimeEntry: (taskId: string, minutes: number, at?: number) => void;
   deleteTask: (id: string) => void;
   addCategory: (input: CategoryInput) => Category;
   updateCategory: (id: string, patch: Partial<Category>) => void;
@@ -161,13 +161,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const addTimeEntry = useCallback((taskId: string, minutes: number) => {
+  const addTimeEntry = useCallback((taskId: string, minutes: number, at?: number) => {
     if (minutes <= 0) return;
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id !== taskId) return task;
-        const entry = { id: newId(), minutes, at: Date.now() };
-        const withEntry = { ...task, timeEntries: [...task.timeEntries, entry] };
+        const entry = { id: newId(), minutes, at: at ?? Date.now() };
+        // Entries stay sorted oldest first, so the newest one is always last.
+        const withEntry = {
+          ...task,
+          timeEntries: [...task.timeEntries, entry].sort((a, b) => a.at - b.at),
+        };
         return withEntry.status === 'pending'
           ? withStatusEffects({ ...withEntry, status: 'inProgress' }, entry.at)
           : withEntry;

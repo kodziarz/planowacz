@@ -74,6 +74,7 @@ export const pl = {
     timeSpentEmpty: 'Brak wpisów czasu.',
     addTime: 'Dodaj czas',
     addTimeHint: 'Przesuń lub wpisz, ile czasu poświęciłeś na to zadanie.',
+    entryTime: 'Data i czas wpisu',
     quickAdd: 'Dodaj poświęcony czas do %{name}',
     quickAddTitle: 'Dodaj czas — %{name}',
   },

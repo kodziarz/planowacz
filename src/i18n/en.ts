@@ -72,6 +72,7 @@ export const en = {
     timeSpentEmpty: 'No time entries yet.',
     addTime: 'Add time',
     addTimeHint: 'Slide or type how much time you spent on this task.',
+    entryTime: 'Date and time of the entry',
     quickAdd: 'Add time spent to %{name}',
     quickAddTitle: 'Add time — %{name}',
   },

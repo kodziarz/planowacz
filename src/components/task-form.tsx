@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppButton } from './button';
+import { DateTimeField } from './date-time-field';
 import { FormRow } from './form-row';
 import { StatusControl } from './status-control';
 import { TextField } from './text-field';
@@ -10,7 +11,15 @@ import { NumberStepper } from './stepper';
 import { TimeAmountInput } from './time-amount-input';
 import { ThemedText } from './themed-text';
 
-import { isValidTimeStep, MAX_TIME_MINUTES, MIN_TIME_MINUTES, TIME_STEP_MINUTES } from '@/constants/time';
+import {
+  isValidTimeStep,
+  MAX_TIME_MINUTES,
+  MIN_TIME_MINUTES,
+  SPENT_MAX_MINUTES,
+  SPENT_MIN_MINUTES,
+  SPENT_STEP_MINUTES,
+  TIME_STEP_MINUTES,
+} from '@/constants/time';
 import { Spacing } from '@/constants/theme';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/hooks/use-theme';
@@ -64,6 +73,7 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
   const [status, setStatus] = useState<TaskStatus>(existing?.status ?? 'pending');
   const [description, setDescription] = useState(existing?.description ?? '');
   const [spend, setSpend] = useState<number | null>(null);
+  const [spendAt, setSpendAt] = useState(() => Date.now());
   const [errors, setErrors] = useState<Errors>({});
 
   const missing = taskId != null && existing == null;
@@ -126,7 +136,7 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
 
   const recordTime = () => {
     if (existing == null || spend == null || spend <= 0) return;
-    addTimeEntry(existing.id, spend);
+    addTimeEntry(existing.id, spend, spendAt);
     setSpend(null);
   };
 
@@ -291,12 +301,18 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
             label={t('task.addTime')}
             value={spend}
             onChange={setSpend}
-            min={MIN_TIME_MINUTES}
-            max={MAX_TIME_MINUTES}
-            step={TIME_STEP_MINUTES}
+            min={SPENT_MIN_MINUTES}
+            max={SPENT_MAX_MINUTES}
+            step={SPENT_STEP_MINUTES}
             sliderHint={t('task.addTimeHint')}
           />
-          <AppButton label={t('task.addTime')} variant="secondary" onPress={recordTime} disabled={spend == null} />
+          <DateTimeField label={t('task.entryTime')} value={spendAt} onChange={setSpendAt} />
+          <AppButton
+            label={t('task.addTime')}
+            variant="secondary"
+            onPress={recordTime}
+            disabled={spend == null}
+          />
         </View>
       )}
 

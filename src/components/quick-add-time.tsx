@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppButton } from './button';
+import { DateTimeField } from './date-time-field';
 import { ThemedText } from './themed-text';
 import { TimeAmountInput } from './time-amount-input';
 
 import { Spacing } from '@/constants/theme';
-import { MAX_TIME_MINUTES, MIN_TIME_MINUTES, TIME_STEP_MINUTES } from '@/constants/time';
+import { SPENT_MAX_MINUTES, SPENT_MIN_MINUTES, SPENT_STEP_MINUTES } from '@/constants/time';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/hooks/use-theme';
 import { useStore } from '@/store/store-provider';
@@ -19,14 +20,16 @@ export function QuickAddTimeButton({ task }: { task: Task }) {
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
   const [minutes, setMinutes] = useState<number | null>(null);
+  const [at, setAt] = useState(() => Date.now());
 
   const close = () => {
     setVisible(false);
     setMinutes(null);
+    setAt(Date.now());
   };
 
   const confirm = () => {
-    if (minutes != null && minutes > 0) addTimeEntry(task.id, minutes);
+    if (minutes != null && minutes > 0) addTimeEntry(task.id, minutes, at);
     close();
   };
 
@@ -69,11 +72,12 @@ export function QuickAddTimeButton({ task }: { task: Task }) {
               value={minutes}
               onChange={setMinutes}
               required
-              min={MIN_TIME_MINUTES}
-              max={MAX_TIME_MINUTES}
-              step={TIME_STEP_MINUTES}
-              slider={false}
+              min={SPENT_MIN_MINUTES}
+              max={SPENT_MAX_MINUTES}
+              step={SPENT_STEP_MINUTES}
+              sliderHint={t('task.addTimeHint')}
             />
+            <DateTimeField label={t('task.entryTime')} value={at} onChange={setAt} />
             <View style={styles.actions}>
               <AppButton label={t('common.cancel')} variant="secondary" onPress={close} style={styles.flex} />
               <AppButton label={t('common.confirm')} onPress={confirm} disabled={minutes == null} style={styles.flex} />

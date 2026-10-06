@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 
+import { resolveAddress } from './address-lookup';
+
 export interface GeoPoint {
   latitude: number;
   longitude: number;
@@ -19,12 +21,15 @@ export async function getCurrentPoint(): Promise<GeoPoint | null> {
 }
 
 /**
- * Forward geocoding of a typed address. Returns null when the address cannot be
- * resolved or the platform does not support geocoding (web).
+ * Forward geocoding of a typed address. The online Photon lookup runs first so
+ * that addresses resolve on every platform, including the web; the platform
+ * geocoder is only a fallback. Returns null when nothing can resolve it.
  */
 export async function geocodeAddress(address: string): Promise<GeoPoint | null> {
   const trimmed = address.trim();
   if (trimmed.length === 0) return null;
+  const online = await resolveAddress(trimmed);
+  if (online != null) return online;
   try {
     if (Platform.OS === 'android') {
       const current = await Location.getForegroundPermissionsAsync();

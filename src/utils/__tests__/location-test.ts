@@ -1,5 +1,6 @@
 import * as Location from 'expo-location';
 
+import { resolveAddress } from '../address-lookup';
 import { getCurrentPoint, geocodeAddress, reverseGeocodeLabel } from '../location';
 
 jest.mock('expo-location', () => ({
@@ -8,6 +9,10 @@ jest.mock('expo-location', () => ({
   getCurrentPositionAsync: jest.fn(),
   geocodeAsync: jest.fn(),
   reverseGeocodeAsync: jest.fn(),
+}));
+
+jest.mock('../address-lookup', () => ({
+  resolveAddress: jest.fn(),
 }));
 
 const mockLocation = Location as unknown as Record<string, jest.Mock>;
@@ -45,6 +50,22 @@ describe('geocodeAddress', () => {
       longitude: 20,
     });
     expect(mockLocation.geocodeAsync).toHaveBeenCalledWith('Baker Street London');
+  });
+
+  test('resolves through the online lookup without touching the platform geocoder', async () => {
+    jest.mocked(resolveAddress).mockResolvedValueOnce({ latitude: 52.229, longitude: 21.012 });
+    await expect(geocodeAddress('Warszawa, Krakowskie Przedmiescie')).resolves.toEqual({
+      latitude: 52.229,
+      longitude: 21.012,
+    });
+    expect(mockLocation.geocodeAsync).not.toHaveBeenCalled();
+  });
+
+  test('falls back to the platform geocoder when the online lookup finds nothing', async () => {
+    jest.mocked(resolveAddress).mockResolvedValueOnce(null);
+    mockLocation.geocodeAsync.mockResolvedValue([{ latitude: 3, longitude: 4 }]);
+    await expect(geocodeAddress('unknown place')).resolves.toEqual({ latitude: 3, longitude: 4 });
+    expect(mockLocation.geocodeAsync).toHaveBeenCalledWith('unknown place');
   });
 
   test('skips empty addresses and maps failures to null', async () => {

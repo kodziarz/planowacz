@@ -46,7 +46,9 @@ export function UiSlider({
 
 const styles = {
   host: {
-    width: '100%',
+    // Stretching (instead of width: 100%) keeps the margins inside the parent,
+    // so the track has the same gap on the left and on the right.
+    alignSelf: 'stretch',
     marginHorizontal: 16,
     paddingVertical: Spacing.one,
   },

@@ -164,7 +164,7 @@ export default function SettingsScreen() {
           <AppButton
             label={t('settings.import')}
             variant="secondary"
-            onPress={() => router.push('/import')}
+            onPress={() => router.push('/more/import')}
             testID="settings-import"
             style={styles.dataButton}
           />

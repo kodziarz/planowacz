@@ -9,14 +9,14 @@ import { useTheme } from '@/hooks/use-theme';
 
 type MenuEntry = {
   labelKey: TranslationKey;
-  href: '/queues' | '/categories' | '/statistics' | '/settings';
+  href: '/more/queues' | '/more/categories' | '/more/statistics' | '/more/settings';
 };
 
 const ENTRIES: MenuEntry[] = [
-  { labelKey: 'tab.queues', href: '/queues' },
-  { labelKey: 'tab.categories', href: '/categories' },
-  { labelKey: 'tab.statistics', href: '/statistics' },
-  { labelKey: 'tab.settings', href: '/settings' },
+  { labelKey: 'tab.queues', href: '/more/queues' },
+  { labelKey: 'tab.categories', href: '/more/categories' },
+  { labelKey: 'tab.statistics', href: '/more/statistics' },
+  { labelKey: 'tab.settings', href: '/more/settings' },
 ];
 
 export default function MoreScreen() {

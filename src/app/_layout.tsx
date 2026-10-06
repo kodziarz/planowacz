@@ -17,11 +17,6 @@ function RootStack() {
       <Stack.Screen name="task/[id]" options={{ presentation: 'card' }} />
       <Stack.Screen name="category/new" options={{ presentation: 'card' }} />
       <Stack.Screen name="category/[id]" options={{ presentation: 'card' }} />
-      <Stack.Screen name="queues" options={{ presentation: 'card', headerShown: false }} />
-      <Stack.Screen name="categories" options={{ presentation: 'card', headerShown: false }} />
-      <Stack.Screen name="settings" options={{ presentation: 'card', headerShown: false }} />
-      <Stack.Screen name="statistics" options={{ presentation: 'card', headerShown: false }} />
-      <Stack.Screen name="import" options={{ presentation: 'card', headerShown: false }} />
       <Stack.Screen name="situation/new" options={{ presentation: 'card' }} />
       <Stack.Screen name="situation/[id]" options={{ presentation: 'card' }} />
       <Stack.Screen name="note/new" options={{ presentation: 'card' }} />

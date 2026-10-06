@@ -3,7 +3,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { useEffect } from 'react';
 
-import ImportScreen from '@/app/import';
+import ImportScreen from '@/app/(tabs)/more/import';
 
 import { I18nProvider } from '@/i18n';
 import { buildExportPayload } from '@/logic/data-transfer';

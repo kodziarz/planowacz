@@ -16,6 +16,7 @@ import { buildExportPayload } from '@/logic/data-transfer';
 import { useStore } from '@/store/store-provider';
 import type { LanguageSetting } from '@/types';
 import { formatDays, formatPercent } from '@/utils/format';
+import { saveTextFile } from '@/utils/save-file';
 
 const EXPORT_FILE_NAME = 'planowacz-export.json';
 
@@ -39,21 +40,18 @@ export default function SettingsScreen() {
   const { t, locale } = useI18n();
   const theme = useTheme();
   const router = useRouter();
-  const [exportNotice, setExportNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ text: string; tone: 'danger' | 'success' } | null>(null);
+
+  const buildJson = () =>
+    JSON.stringify(buildExportPayload({ tasks, categories, situations, notes, settings }), null, 2);
 
   const exportData = async () => {
-    setExportNotice(null);
+    setNotice(null);
     try {
-      const payload = buildExportPayload({ tasks, categories, situations, notes, settings });
-      const json = JSON.stringify(payload, null, 2);
+      const json = buildJson();
       if (Platform.OS === 'web') {
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = EXPORT_FILE_NAME;
-        anchor.click();
-        URL.revokeObjectURL(url);
+        const outcome = await saveTextFile(json, EXPORT_FILE_NAME);
+        if (outcome !== 'saved') setNotice({ text: t('settings.exportFailed'), tone: 'danger' });
         return;
       }
       const file = new File(Paths.cache, EXPORT_FILE_NAME);
@@ -62,7 +60,7 @@ export default function SettingsScreen() {
       file.write(json);
       const available = await Sharing.isAvailableAsync();
       if (!available) {
-        setExportNotice(t('settings.exportUnavailable'));
+        setNotice({ text: t('settings.exportUnavailable'), tone: 'danger' });
         return;
       }
       await Sharing.shareAsync(file.uri, {
@@ -70,7 +68,18 @@ export default function SettingsScreen() {
         dialogTitle: t('settings.export'),
       });
     } catch {
-      setExportNotice(t('settings.exportFailed'));
+      setNotice({ text: t('settings.exportFailed'), tone: 'danger' });
+    }
+  };
+
+  const saveData = async () => {
+    setNotice(null);
+    try {
+      const outcome = await saveTextFile(buildJson(), EXPORT_FILE_NAME);
+      if (outcome === 'saved') setNotice({ text: t('settings.saveSucceeded'), tone: 'success' });
+      else if (outcome === 'failed') setNotice({ text: t('settings.exportFailed'), tone: 'danger' });
+    } catch {
+      setNotice({ text: t('settings.exportFailed'), tone: 'danger' });
     }
   };
 
@@ -161,6 +170,17 @@ export default function SettingsScreen() {
             testID="settings-export"
             style={styles.dataButton}
           />
+          {Platform.OS !== 'web' && (
+            <AppButton
+              label={t('settings.save')}
+              variant="secondary"
+              onPress={() => {
+                void saveData();
+              }}
+              testID="settings-save"
+              style={styles.dataButton}
+            />
+          )}
           <AppButton
             label={t('settings.import')}
             variant="secondary"
@@ -169,9 +189,9 @@ export default function SettingsScreen() {
             style={styles.dataButton}
           />
         </View>
-        {exportNotice != null && (
-          <ThemedText type="small" themeColor="danger" style={styles.exportNotice}>
-            {exportNotice}
+        {notice != null && (
+          <ThemedText type="small" themeColor={notice.tone} style={styles.exportNotice}>
+            {notice.text}
           </ThemedText>
         )}
       </FormRow>

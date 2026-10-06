@@ -195,10 +195,13 @@ export const en = {
       pl: 'Polski',
     },
     data: 'Data',
-    dataExplain: 'Export all app data to a JSON file, or import a previously exported file.',
+    dataExplain:
+      'Export all app data to a JSON file — share it or save it to a folder — or import a previously exported file.',
     export: 'Export data',
     exportFailed: 'Export failed.',
     exportUnavailable: 'Sharing is not available on this device.',
+    save: 'Save to device',
+    saveSucceeded: 'The file has been saved to the selected folder.',
     import: 'Import data',
   },
 

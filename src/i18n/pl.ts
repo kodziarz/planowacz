@@ -197,10 +197,13 @@ export const pl = {
       pl: 'Polski',
     },
     data: 'Dane',
-    dataExplain: 'Wyeksportuj wszystkie dane aplikacji do pliku JSON albo zaimportuj wcześniej wyeksportowany plik.',
+    dataExplain:
+      'Wyeksportuj wszystkie dane aplikacji do pliku JSON — udostępnij albo zapisz w folderze — albo zaimportuj wcześniej wyeksportowany plik.',
     export: 'Eksportuj dane',
     exportFailed: 'Eksport nie powiódł się.',
     exportUnavailable: 'Udostępnianie nie jest dostępne na tym urządzeniu.',
+    save: 'Zapisz na urządzeniu',
+    saveSucceeded: 'Plik został zapisany w wybranym folderze.',
     import: 'Importuj dane',
   },
 

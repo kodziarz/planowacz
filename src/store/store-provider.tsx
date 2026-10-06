@@ -9,13 +9,16 @@ import {
   type ReactNode,
 } from 'react';
 
-import { loadAppData, saveCategories, saveSettings, saveTasks } from './repository';
+import { loadAppData, saveCategories, saveNotes, saveSettings, saveSituations, saveTasks } from './repository';
 
+import type { ImportResult } from '@/logic/data-transfer';
 import { newId } from '@/utils/id';
 import {
   DEFAULT_SETTINGS,
   type Category,
+  type Note,
   type Settings,
+  type Situation,
   type Task,
   type TaskStatus,
 } from '@/types';
@@ -28,6 +31,7 @@ export interface TaskInput {
   granularityMinutes: number | null;
   parentId: string | null;
   status: TaskStatus;
+  description?: string | null;
 }
 
 export interface CategoryInput {
@@ -35,19 +39,46 @@ export interface CategoryInput {
   color: string;
 }
 
+export interface SituationInput {
+  name: string;
+  description: string | null;
+  localization: string | null;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+export interface NoteInput {
+  situationId: string;
+  name: string;
+  description: string | null;
+}
+
 export interface StoreValue {
   loaded: boolean;
   tasks: Task[];
   categories: Category[];
+  situations: Situation[];
+  notes: Note[];
   settings: Settings;
   addTask: (input: TaskInput) => Task;
   updateTask: (id: string, patch: Partial<Task>) => void;
   setTaskStatus: (id: string, status: TaskStatus) => void;
+  /** Appends a time-log entry; a pending task automatically becomes in progress. */
+  addTimeEntry: (taskId: string, minutes: number) => void;
   deleteTask: (id: string) => void;
   addCategory: (input: CategoryInput) => Category;
   updateCategory: (id: string, patch: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
+  addSituation: (input: SituationInput) => Situation;
+  updateSituation: (id: string, patch: Partial<Situation>) => void;
+  /** Removes the situation together with its notes. */
+  deleteSituation: (id: string) => void;
+  addNote: (input: NoteInput) => Note;
+  updateNote: (id: string, patch: Partial<Note>) => void;
+  deleteNote: (id: string) => void;
   updateSettings: (patch: Partial<Settings>) => void;
+  /** Atomically applies a computed import plan (null parts are left untouched). */
+  applyImport: (result: ImportResult) => void;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
@@ -63,6 +94,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [loaded, setLoaded] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [situations, setSituations] = useState<Situation[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const hydrated = useRef(false);
 
@@ -72,6 +105,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       setTasks(data.tasks);
       setCategories(data.categories);
+      setSituations(data.situations);
+      setNotes(data.notes);
       setSettings(data.settings);
       hydrated.current = true;
       setLoaded(true);
@@ -90,13 +125,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [categories]);
 
   useEffect(() => {
+    if (hydrated.current) void saveSituations(situations);
+  }, [situations]);
+
+  useEffect(() => {
+    if (hydrated.current) void saveNotes(notes);
+  }, [notes]);
+
+  useEffect(() => {
     if (hydrated.current) void saveSettings(settings);
   }, [settings]);
 
   const addTask = useCallback((input: TaskInput): Task => {
     const now = Date.now();
     const task: Task = withStatusEffects(
-      { id: newId(), createdAt: now, completedAt: null, ...input },
+      { id: newId(), createdAt: now, completedAt: null, timeEntries: [], description: null, ...input },
       now,
     );
     setTasks((prev) => [...prev, task]);
@@ -115,6 +158,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const setTaskStatus = useCallback((id: string, status: TaskStatus) => {
     setTasks((prev) =>
       prev.map((task) => (task.id === id ? withStatusEffects({ ...task, status }, Date.now()) : task)),
+    );
+  }, []);
+
+  const addTimeEntry = useCallback((taskId: string, minutes: number) => {
+    if (minutes <= 0) return;
+    setTasks((prev) =>
+      prev.map((task) => {
+        if (task.id !== taskId) return task;
+        const entry = { id: newId(), minutes, at: Date.now() };
+        const withEntry = { ...task, timeEntries: [...task.timeEntries, entry] };
+        return withEntry.status === 'pending'
+          ? withStatusEffects({ ...withEntry, status: 'inProgress' }, entry.at)
+          : withEntry;
+      }),
     );
   }, []);
 
@@ -154,8 +211,51 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const addSituation = useCallback((input: SituationInput): Situation => {
+    const situation: Situation = { id: newId(), createdAt: Date.now(), ...input };
+    setSituations((prev) => [...prev, situation]);
+    return situation;
+  }, []);
+
+  const updateSituation = useCallback((id: string, patch: Partial<Situation>) => {
+    setSituations((prev) =>
+      prev.map((situation) =>
+        situation.id === id ? { ...situation, ...patch, id: situation.id } : situation,
+      ),
+    );
+  }, []);
+
+  const deleteSituation = useCallback((id: string) => {
+    setSituations((prev) => prev.filter((situation) => situation.id !== id));
+    setNotes((prev) => prev.filter((note) => note.situationId !== id));
+  }, []);
+
+  const addNote = useCallback((input: NoteInput): Note => {
+    const note: Note = { id: newId(), createdAt: Date.now(), ...input };
+    setNotes((prev) => [...prev, note]);
+    return note;
+  }, []);
+
+  const updateNote = useCallback((id: string, patch: Partial<Note>) => {
+    setNotes((prev) =>
+      prev.map((note) => (note.id === id ? { ...note, ...patch, id: note.id } : note)),
+    );
+  }, []);
+
+  const deleteNote = useCallback((id: string) => {
+    setNotes((prev) => prev.filter((note) => note.id !== id));
+  }, []);
+
   const updateSettings = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => ({ ...prev, ...patch }));
+  }, []);
+
+  const applyImport = useCallback((result: ImportResult) => {
+    if (result.tasks != null) setTasks(result.tasks);
+    if (result.categories != null) setCategories(result.categories);
+    if (result.situations != null) setSituations(result.situations);
+    if (result.notes != null) setNotes(result.notes);
+    if (result.settings != null) setSettings(result.settings);
   }, []);
 
   const value = useMemo<StoreValue>(
@@ -163,29 +263,49 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       loaded,
       tasks,
       categories,
+      situations,
+      notes,
       settings,
       addTask,
       updateTask,
       setTaskStatus,
+      addTimeEntry,
       deleteTask,
       addCategory,
       updateCategory,
       deleteCategory,
+      addSituation,
+      updateSituation,
+      deleteSituation,
+      addNote,
+      updateNote,
+      deleteNote,
       updateSettings,
+      applyImport,
     }),
     [
       loaded,
       tasks,
       categories,
+      situations,
+      notes,
       settings,
       addTask,
       updateTask,
       setTaskStatus,
+      addTimeEntry,
       deleteTask,
       addCategory,
       updateCategory,
       deleteCategory,
+      addSituation,
+      updateSituation,
+      deleteSituation,
+      addNote,
+      updateNote,
+      deleteNote,
       updateSettings,
+      applyImport,
     ],
   );
 

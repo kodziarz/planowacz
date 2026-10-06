@@ -32,7 +32,7 @@ export default function CategoriesScreen() {
   );
 
   return (
-    <Screen title={t('tab.categories')}>
+    <Screen title={t('tab.categories')} back>
       <AppButton label={t('categories.new')} onPress={() => router.push('/category/new')} />
 
       {sorted.length === 0 ? (

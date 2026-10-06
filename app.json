@@ -33,7 +33,20 @@
           "imageWidth": 76
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-sharing",
+      [
+        "expo-file-system",
+        {
+          "enableFileSharing": true
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location to sort situations by distance."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

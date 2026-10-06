@@ -1,18 +1,29 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { DEFAULT_SETTINGS, type AppData, type Category, type Settings, type Task } from '@/types';
+import { normalizeList, normalizeCategory, normalizeNote, normalizeSituation, normalizeTask } from '@/logic/normalize';
+import {
+  DEFAULT_SETTINGS,
+  type AppData,
+  type Category,
+  type Note,
+  type Settings,
+  type Situation,
+  type Task,
+} from '@/types';
 
 const KEYS = {
   tasks: '@planowacz/tasks',
   categories: '@planowacz/categories',
+  situations: '@planowacz/situations',
+  notes: '@planowacz/notes',
   settings: '@planowacz/settings',
 } as const;
 
-async function readJson<T>(key: string, fallback: T): Promise<T> {
+async function readJson(key: string, fallback: unknown): Promise<unknown> {
   try {
     const raw = await AsyncStorage.getItem(key);
     if (raw == null) return fallback;
-    return JSON.parse(raw) as T;
+    return JSON.parse(raw);
   } catch {
     return fallback;
   }
@@ -27,15 +38,19 @@ async function writeJson(key: string, value: unknown): Promise<void> {
 }
 
 export async function loadAppData(): Promise<AppData> {
-  const [tasks, categories, settings] = await Promise.all([
-    readJson<Task[]>(KEYS.tasks, []),
-    readJson<Category[]>(KEYS.categories, []),
-    readJson<Partial<Settings>>(KEYS.settings, {}),
+  const [tasksRaw, categoriesRaw, situationsRaw, notesRaw, settingsRaw] = await Promise.all([
+    readJson(KEYS.tasks, []),
+    readJson(KEYS.categories, []),
+    readJson(KEYS.situations, []),
+    readJson(KEYS.notes, []),
+    readJson(KEYS.settings, {}),
   ]);
   return {
-    tasks,
-    categories,
-    settings: { ...DEFAULT_SETTINGS, ...settings },
+    tasks: normalizeList(tasksRaw, normalizeTask),
+    categories: normalizeList(categoriesRaw, normalizeCategory),
+    situations: normalizeList(situationsRaw, normalizeSituation),
+    notes: normalizeList(notesRaw, normalizeNote),
+    settings: { ...DEFAULT_SETTINGS, ...(typeof settingsRaw === 'object' && settingsRaw != null ? settingsRaw : {}) },
   };
 }
 
@@ -45,6 +60,14 @@ export function saveTasks(tasks: Task[]): Promise<void> {
 
 export function saveCategories(categories: Category[]): Promise<void> {
   return writeJson(KEYS.categories, categories);
+}
+
+export function saveSituations(situations: Situation[]): Promise<void> {
+  return writeJson(KEYS.situations, situations);
+}
+
+export function saveNotes(notes: Note[]): Promise<void> {
+  return writeJson(KEYS.notes, notes);
 }
 
 export function saveSettings(settings: Settings): Promise<void> {

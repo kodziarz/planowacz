@@ -47,6 +47,7 @@ export function UiSlider({
 const styles = {
   host: {
     width: '100%',
+    marginHorizontal: 16,
     paddingVertical: Spacing.one,
   },
 } as const;

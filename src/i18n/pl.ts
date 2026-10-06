@@ -8,6 +8,9 @@ export const pl = {
     tasks: 'Zadania',
     categories: 'Kategorie',
     settings: 'Ustawienia',
+    situations: 'Sytuacje',
+    statistics: 'Statystyki',
+    more: 'Więcej',
   },
 
   // Common
@@ -21,6 +24,7 @@ export const pl = {
     required: 'wymagane',
     notSet: 'Nie ustawiono',
     confirm: 'Potwierdź',
+    back: 'Wstecz',
   },
 
   // Statuses
@@ -63,6 +67,15 @@ export const pl = {
     created: 'Utworzono: %{date}',
     remainingOfParent: 'Pozostały czas zadania nadrzędnego: %{time}',
     sliderHint: 'Przesuń, aby ustawić zaplanowany czas (5 min … pozostały czas rodzica).',
+    prompts: 'Podpowiedzi',
+    description: 'Opis',
+    descriptionPlaceholder: 'Opis opcjonalny',
+    timeSpent: 'Poświęcony czas',
+    timeSpentEmpty: 'Brak wpisów czasu.',
+    addTime: 'Dodaj czas',
+    addTimeHint: 'Przesuń lub wpisz, ile czasu poświęciłeś na to zadanie.',
+    quickAdd: 'Dodaj poświęcony czas do %{name}',
+    quickAddTitle: 'Dodaj czas — %{name}',
   },
 
   // Availability view
@@ -106,6 +119,66 @@ export const pl = {
     nameRequired: 'Nazwa jest wymagana.',
   },
 
+  // Menu „Więcej”
+  more: {
+    title: 'Więcej',
+  },
+
+  // Sytuacje
+  situations: {
+    empty: 'Brak sytuacji.',
+    new: 'Nowa sytuacja',
+    edit: 'Edytuj sytuację',
+    name: 'Nazwa',
+    namePlaceholder: 'Nazwa sytuacji',
+    description: 'Opis',
+    descriptionPlaceholder: 'Opis opcjonalny',
+    localization: 'Lokalizacja',
+    localizationPlaceholder: 'Adres lub nazwa miejsca',
+    gps: 'Użyj mojej lokalizacji',
+    reference: 'Twoja lokalizacja',
+    referencePlaceholder: 'Adres, z którego mierzyć odległości',
+    referenceSet: 'Odległości są mierzone od tej lokalizacji.',
+    useAddress: 'Użyj adresu',
+    sortNewest: 'Najnowsze',
+    sortName: 'A–Z',
+    sortDistance: 'Odległość',
+    distance: '%{km} km',
+    nameRequired: 'Nazwa jest wymagana.',
+    geocodeFailed: 'Nie znaleziono tego adresu.',
+    permissionDenied: 'Odmówiono dostępu do lokalizacji.',
+    created: 'Utworzono: %{date}',
+    notes: 'Notatki',
+    deleteTitle: 'Usuń sytuację',
+    deleteMessage: 'Tej operacji nie można cofnąć.',
+    deleteNotesMessage: 'Jej notatki również zostaną usunięte. Liczba notatek do usunięcia: %{count}.',
+  },
+
+  // Notatki
+  notes: {
+    new: 'Nowa notatka',
+    edit: 'Edytuj notatkę',
+    name: 'Nazwa',
+    namePlaceholder: 'Nazwa notatki',
+    description: 'Opis',
+    descriptionPlaceholder: 'Opis opcjonalny',
+    empty: 'Brak notatek.',
+    nameRequired: 'Nazwa jest wymagana.',
+    inSituation: 'Notatka w sytuacji: %{name}',
+    created: 'Utworzono: %{date}',
+    deleteTitle: 'Usuń notatkę',
+    deleteMessage: 'Tej operacji nie można cofnąć.',
+  },
+
+  // Statystyki
+  statistics: {
+    empty: 'Brak wpisów czasu — dodaj czas poświęcony zadaniom, aby zobaczyć statystyki.',
+    period7: 'Ostatnie 7 dni',
+    period30: 'Ostatnie 30 dni',
+    periodAll: 'Cały okres',
+    total: 'Razem',
+  },
+
   // Settings
   settings: {
     priorityCoefficient: 'Współczynnik priorytetu',
@@ -122,6 +195,44 @@ export const pl = {
       en: 'English',
       pl: 'Polski',
     },
+    data: 'Dane',
+    dataExplain: 'Wyeksportuj wszystkie dane aplikacji do pliku JSON albo zaimportuj wcześniej wyeksportowany plik.',
+    export: 'Eksportuj dane',
+    exportFailed: 'Eksport nie powiódł się.',
+    exportUnavailable: 'Udostępnianie nie jest dostępne na tym urządzeniu.',
+    import: 'Importuj dane',
+  },
+
+  // Ekran przeglądu importu
+  import: {
+    title: 'Importuj dane',
+    intro: 'Wybierz wyeksportowany plik, a następnie zaznacz, co zaimportować.',
+    choose: 'Wybierz plik',
+    choosing: 'Otwieranie…',
+    review: 'Przegląd',
+    errorNotJson: 'Wybrany plik nie jest poprawnym JSON-em.',
+    errorForeign: 'Plik został wyeksportowany przez inną aplikację.',
+    errorNewer: 'Plik pochodzi z nowszej wersji aplikacji.',
+    errorShape: 'Plik nie zawiera danych aplikacji.',
+    readFailed: 'Nie udało się odczytać wybranego pliku.',
+    emptyFile: 'Plik nie zawiera danych do importu.',
+    types: {
+      tasks: 'Zadania',
+      categories: 'Kategorie',
+      situations: 'Sytuacje',
+      notes: 'Notatki',
+      settings: 'Ustawienia',
+    },
+    currentCount: 'Obecnie: %{count}',
+    fileCount: 'W pliku: %{count}',
+    currentValue: 'Obecnie: %{value}',
+    fileValue: 'W pliku: %{value}',
+    settingsValue: '%{coefficient}, okres %{days}',
+    add: 'Dodaj',
+    remove: 'Usuń',
+    replaceSettings: 'Zastąp ustawienia',
+    apply: 'Importuj',
+    nothingSelected: 'Najpierw zaznacz, co chcesz zaimportować.',
   },
 
   // Durations
@@ -138,6 +249,13 @@ export const pl = {
     priority: 'P%{count}',
     planned: 'plan %{time}',
     granularity: 'gran %{time}',
+    spent: 'poświęcono %{time}',
+  },
+
+  // Etykiety jednostek czasu
+  timeUnit: {
+    hours: 'h',
+    minutes: 'min',
   },
 
   // Accessibility / controls

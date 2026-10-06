@@ -13,6 +13,13 @@ export function formatDays(days: number, t: TFunction): string {
   return days === 1 ? t('duration.day', { count: days }) : t('duration.days', { count: days });
 }
 
+export function formatKm(km: number, locale: string): string {
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(km);
+}
+
 export function formatPercent(value: number, locale: string): string {
   return new Intl.NumberFormat(locale, {
     style: 'percent',

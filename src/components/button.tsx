@@ -14,6 +14,7 @@ export interface AppButtonProps {
   disabled?: boolean;
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 export function AppButton({
@@ -23,6 +24,7 @@ export function AppButton({
   disabled = false,
   loading = false,
   style,
+  testID,
 }: AppButtonProps) {
   const theme = useTheme();
   const isDisabled = disabled || loading;
@@ -38,6 +40,7 @@ export function AppButton({
       disabled={isDisabled}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled }}
+      testID={testID}
       style={({ pressed }) => [
         styles.button,
         { backgroundColor, borderColor, opacity: isDisabled ? 0.5 : pressed ? 0.7 : 1 },

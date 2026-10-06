@@ -19,24 +19,19 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="clock" md="schedule" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="queues">
-        <NativeTabs.Trigger.Label>{t('tab.queues')}</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="list.number" md="format_list_numbered" />
-      </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="tasks">
         <NativeTabs.Trigger.Label>{t('tab.tasks')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="checklist" md="checklist" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="categories">
-        <NativeTabs.Trigger.Label>{t('tab.categories')}</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="folder" md="folder" />
+      <NativeTabs.Trigger name="situations">
+        <NativeTabs.Trigger.Label>{t('tab.situations')}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="mappin" md="place" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Label>{t('tab.settings')}</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="gearshape" md="settings" />
+      <NativeTabs.Trigger name="more">
+        <NativeTabs.Trigger.Label>{t('tab.more')}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="ellipsis" md="more_horiz" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

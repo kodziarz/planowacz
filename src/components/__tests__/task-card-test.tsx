@@ -1,5 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { TaskCard } from '../task-card';
 
@@ -8,6 +9,10 @@ import { StoreProvider, useStore, type StoreValue } from '@/store/store-provider
 import type { Task, TaskStatus } from '@/types';
 
 const NOW = 1_700_000_000_000;
+
+beforeEach(async () => {
+  await AsyncStorage.clear();
+});
 
 function task(overrides: Partial<Task> & Pick<Task, 'id'>): Task {
   return {
@@ -18,6 +23,8 @@ function task(overrides: Partial<Task> & Pick<Task, 'id'>): Task {
     granularityMinutes: 15,
     parentId: null,
     status: 'pending',
+    description: null,
+    timeEntries: [],
     createdAt: NOW,
     completedAt: null,
     ...overrides,
@@ -120,5 +127,39 @@ describe('TaskCard', () => {
 
     expect(getByLabelText('Status: In progress. Tap to change.')).toBeTruthy();
     expect(store.tasks[0]?.status).toBe('inProgress');
+  });
+
+  test('quick add logs time from the modal and starts a pending task', async () => {
+    const seeded = task({ id: 'seed', name: 'Log me', status: 'pending' });
+    const { getByLabelText, getByText } = await renderCards(<CardFromStore />, {
+      tasks: [seeded],
+    });
+
+    act(() => {
+      fireEvent.press(getByLabelText('Add time spent to Log me'));
+    });
+
+    act(() => {
+      fireEvent.changeText(getByLabelText('Add time h'), '1');
+    });
+    act(() => {
+      fireEvent.press(getByText('Confirm'));
+    });
+
+    expect(store.tasks[0]?.status).toBe('inProgress');
+    expect(store.tasks[0]?.timeEntries).toHaveLength(1);
+    expect(store.tasks[0]?.timeEntries[0]?.minutes).toBe(60);
+  });
+
+  test('shows the spent chip once time entries exist', async () => {
+    const { getByText } = await renderCards(
+      <TaskCard
+        task={task({
+          id: 'a',
+          timeEntries: [{ id: 'e', minutes: 45, at: NOW }],
+        })}
+      />,
+    );
+    expect(getByText('spent 45 min')).toBeTruthy();
   });
 });

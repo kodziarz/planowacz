@@ -18,6 +18,8 @@ function task(overrides: Partial<Task> & Pick<Task, 'id'>): Task {
     granularityMinutes: null,
     parentId: null,
     status: 'pending',
+    description: null,
+    timeEntries: [],
     createdAt: NOW,
     completedAt: null,
     ...overrides,

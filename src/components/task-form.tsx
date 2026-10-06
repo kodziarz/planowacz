@@ -1,25 +1,27 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppButton } from './button';
 import { FormRow } from './form-row';
 import { StatusControl } from './status-control';
 import { TextField } from './text-field';
-import { NumberStepper, TimeField } from './stepper';
+import { NumberStepper } from './stepper';
+import { TimeAmountInput } from './time-amount-input';
 import { ThemedText } from './themed-text';
 
-import { isValidTimeStep } from '@/constants/time';
+import { isValidTimeStep, MAX_TIME_MINUTES, MIN_TIME_MINUTES, TIME_STEP_MINUTES } from '@/constants/time';
 import { Spacing } from '@/constants/theme';
 import { useI18n } from '@/i18n';
 import { useTheme } from '@/hooks/use-theme';
+import { previousTaskPrompts } from '@/logic/prompts';
 import {
   defaultGranularityForSubtask,
   defaultPlannedTimeForSubtask,
   remainingParentTime,
 } from '@/logic/remaining';
 import { countDescendantTasks, useStore } from '@/store/store-provider';
-import type { TaskStatus } from '@/types';
+import type { Task, TaskStatus } from '@/types';
 import { confirmAction } from '@/utils/confirm';
 import { formatDateTime, formatMinutes } from '@/utils/format';
 
@@ -36,7 +38,7 @@ interface Errors {
 }
 
 export function TaskForm({ taskId, parentId }: TaskFormProps) {
-  const { tasks, categories, addTask, updateTask, deleteTask } = useStore();
+  const { tasks, categories, addTask, updateTask, deleteTask, addTimeEntry } = useStore();
   const { t, locale } = useI18n();
   const theme = useTheme();
   const router = useRouter();
@@ -60,9 +62,15 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
       (initialParent != null ? defaultPlannedTimeForSubtask(initialParent, tasks) : null),
   );
   const [status, setStatus] = useState<TaskStatus>(existing?.status ?? 'pending');
+  const [description, setDescription] = useState(existing?.description ?? '');
+  const [spend, setSpend] = useState<number | null>(null);
   const [errors, setErrors] = useState<Errors>({});
 
   const missing = taskId != null && existing == null;
+  const prompts = useMemo(
+    () => previousTaskPrompts(tasks, name, 3).filter((prompt) => prompt.id !== taskId),
+    [tasks, name, taskId],
+  );
   useEffect(() => {
     if (missing) router.back();
   }, [missing, router]);
@@ -89,6 +97,7 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
 
   const save = () => {
     if (!validate()) return;
+    const trimmedDescription = description.trim();
     const payload = {
       name: name.trim(),
       priority,
@@ -96,6 +105,7 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
       plannedTimeMinutes: planned,
       granularityMinutes: granularity,
       status,
+      description: trimmedDescription.length > 0 ? trimmedDescription : null,
     };
     if (existing != null) {
       updateTask(existing.id, payload);
@@ -103,6 +113,21 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
       addTask({ ...payload, parentId: initialParentId });
     }
     router.back();
+  };
+
+  const applyPrompt = (prompt: Task) => {
+    setPriority(prompt.priority);
+    setCategoryId(prompt.categoryId);
+    setPlanned(prompt.plannedTimeMinutes);
+    setGranularity(prompt.granularityMinutes);
+    setDescription(prompt.description ?? '');
+    setErrors({});
+  };
+
+  const recordTime = () => {
+    if (existing == null || spend == null || spend <= 0) return;
+    addTimeEntry(existing.id, spend);
+    setSpend(null);
   };
 
   const remove = async () => {
@@ -152,6 +177,21 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
         </ThemedText>
       )}
 
+      {prompts.length > 0 && (
+        <FormRow label={t('task.prompts')}>
+          <View style={styles.chips}>
+            {prompts.map((prompt) => (
+              <CategoryChip
+                key={prompt.id}
+                label={prompt.name}
+                selected={false}
+                onPress={() => applyPrompt(prompt)}
+              />
+            ))}
+          </View>
+        </FormRow>
+      )}
+
       <NumberStepper
         label={t('task.priority')}
         hint={t('task.priorityHint')}
@@ -179,7 +219,7 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
         </View>
       </FormRow>
 
-      <TimeField
+      <TimeAmountInput
         label={t('task.plannedTime')}
         value={planned}
         onChange={(value) => {
@@ -189,11 +229,13 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
         required={!hasChildren}
         error={errors.time}
         hint={hasChildren ? t('task.defaultsNote') : t('task.leafNote')}
-        sliderMax={parentTask != null ? sliderMax : null}
+        min={MIN_TIME_MINUTES}
+        max={sliderMax ?? MAX_TIME_MINUTES}
+        step={TIME_STEP_MINUTES}
         sliderHint={remainingHint ?? t('task.sliderHint')}
       />
 
-      <TimeField
+      <TimeAmountInput
         label={t('task.granularity')}
         value={granularity}
         onChange={(value) => {
@@ -202,6 +244,17 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
         }}
         required={!hasChildren}
         hint={t('task.granularityHint')}
+        min={MIN_TIME_MINUTES}
+        max={Math.max(MIN_TIME_MINUTES, planned ?? MAX_TIME_MINUTES)}
+        step={TIME_STEP_MINUTES}
+      />
+
+      <TextField
+        label={t('task.description')}
+        value={description}
+        onChangeText={setDescription}
+        placeholder={t('task.descriptionPlaceholder')}
+        multiline
       />
 
       <FormRow label={t('task.status')}>
@@ -218,6 +271,33 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
         <ThemedText type="small" themeColor="textTertiary">
           {t('task.created', { date: formatDateTime(existing.createdAt, locale) })}
         </ThemedText>
+      )}
+
+      {existing != null && (
+        <View style={styles.timeSpent}>
+          <ThemedText type="smallBold">{t('task.timeSpent')}</ThemedText>
+          {existing.timeEntries.length === 0 ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('task.timeSpentEmpty')}
+            </ThemedText>
+          ) : (
+            existing.timeEntries.map((entry) => (
+              <ThemedText key={entry.id} type="small" themeColor="textSecondary">
+                {`${formatMinutes(entry.minutes, t)} · ${formatDateTime(entry.at, locale)}`}
+              </ThemedText>
+            ))
+          )}
+          <TimeAmountInput
+            label={t('task.addTime')}
+            value={spend}
+            onChange={setSpend}
+            min={MIN_TIME_MINUTES}
+            max={MAX_TIME_MINUTES}
+            step={TIME_STEP_MINUTES}
+            sliderHint={t('task.addTimeHint')}
+          />
+          <AppButton label={t('task.addTime')} variant="secondary" onPress={recordTime} disabled={spend == null} />
+        </View>
       )}
 
       <AppButton label={t('common.save')} onPress={save} />
@@ -302,6 +382,13 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: Spacing.two,
+  },
+  timeSpent: {
+    gap: Spacing.two,
+    padding: Spacing.three,
+    borderRadius: Spacing.three,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   flex: {
     flex: 1,

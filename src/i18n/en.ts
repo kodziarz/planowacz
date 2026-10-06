@@ -6,6 +6,9 @@ export const en = {
     tasks: 'Tasks',
     categories: 'Categories',
     settings: 'Settings',
+    situations: 'Situations',
+    statistics: 'Statistics',
+    more: 'More',
   },
 
   // Common
@@ -19,6 +22,7 @@ export const en = {
     required: 'required',
     notSet: 'Not set',
     confirm: 'Confirm',
+    back: 'Back',
   },
 
   // Statuses
@@ -61,6 +65,15 @@ export const en = {
     created: 'Created %{date}',
     remainingOfParent: 'Remaining time of the parent task: %{time}',
     sliderHint: 'Slide to set the planned time (5 min … remaining parent time).',
+    prompts: 'Suggestions',
+    description: 'Description',
+    descriptionPlaceholder: 'Optional description',
+    timeSpent: 'Time spent',
+    timeSpentEmpty: 'No time entries yet.',
+    addTime: 'Add time',
+    addTimeHint: 'Slide or type how much time you spent on this task.',
+    quickAdd: 'Add time spent to %{name}',
+    quickAddTitle: 'Add time — %{name}',
   },
 
   // Availability view
@@ -104,6 +117,66 @@ export const en = {
     nameRequired: 'Name is required.',
   },
 
+  // "More" menu
+  more: {
+    title: 'More',
+  },
+
+  // Situations
+  situations: {
+    empty: 'No situations yet.',
+    new: 'New situation',
+    edit: 'Edit situation',
+    name: 'Name',
+    namePlaceholder: 'Situation name',
+    description: 'Description',
+    descriptionPlaceholder: 'Optional description',
+    localization: 'Location',
+    localizationPlaceholder: 'Address or place name',
+    gps: 'Use my location',
+    reference: 'Your location',
+    referencePlaceholder: 'Address to measure distances from',
+    referenceSet: 'Distances are measured from this location.',
+    useAddress: 'Use address',
+    sortNewest: 'Newest',
+    sortName: 'A–Z',
+    sortDistance: 'Distance',
+    distance: '%{km} km',
+    nameRequired: 'Name is required.',
+    geocodeFailed: 'Could not find that address.',
+    permissionDenied: 'Location permission was denied.',
+    created: 'Created %{date}',
+    notes: 'Notes',
+    deleteTitle: 'Delete situation',
+    deleteMessage: 'This cannot be undone.',
+    deleteNotesMessage: 'Its notes will be deleted as well. Notes to delete: %{count}.',
+  },
+
+  // Notes
+  notes: {
+    new: 'New note',
+    edit: 'Edit note',
+    name: 'Name',
+    namePlaceholder: 'Note name',
+    description: 'Description',
+    descriptionPlaceholder: 'Optional description',
+    empty: 'No notes yet.',
+    nameRequired: 'Name is required.',
+    inSituation: 'Note in situation: %{name}',
+    created: 'Created %{date}',
+    deleteTitle: 'Delete note',
+    deleteMessage: 'This cannot be undone.',
+  },
+
+  // Statistics
+  statistics: {
+    empty: 'No time entries yet — add time spent on tasks to see statistics.',
+    period7: 'Last 7 days',
+    period30: 'Last 30 days',
+    periodAll: 'All time',
+    total: 'Total',
+  },
+
   // Settings
   settings: {
     priorityCoefficient: 'Priority coefficient',
@@ -120,6 +193,44 @@ export const en = {
       en: 'English',
       pl: 'Polski',
     },
+    data: 'Data',
+    dataExplain: 'Export all app data to a JSON file, or import a previously exported file.',
+    export: 'Export data',
+    exportFailed: 'Export failed.',
+    exportUnavailable: 'Sharing is not available on this device.',
+    import: 'Import data',
+  },
+
+  // Import review screen
+  import: {
+    title: 'Import data',
+    intro: 'Choose an exported file, then pick what to import.',
+    choose: 'Choose file',
+    choosing: 'Opening…',
+    review: 'Review',
+    errorNotJson: 'The selected file is not valid JSON.',
+    errorForeign: 'The file was exported by a different app.',
+    errorNewer: 'The file comes from a newer version of the app.',
+    errorShape: 'The file does not contain app data.',
+    readFailed: 'Could not read the selected file.',
+    emptyFile: 'The file contains no data to import.',
+    types: {
+      tasks: 'Tasks',
+      categories: 'Categories',
+      situations: 'Situations',
+      notes: 'Notes',
+      settings: 'Settings',
+    },
+    currentCount: 'Current: %{count}',
+    fileCount: 'In file: %{count}',
+    currentValue: 'Current: %{value}',
+    fileValue: 'In file: %{value}',
+    settingsValue: '%{coefficient}, period %{days}',
+    add: 'Add',
+    remove: 'Remove',
+    replaceSettings: 'Replace settings',
+    apply: 'Import',
+    nothingSelected: 'Select what to import first.',
   },
 
   // Durations
@@ -136,6 +247,13 @@ export const en = {
     priority: 'P%{count}',
     planned: 'plan %{time}',
     granularity: 'gran %{time}',
+    spent: 'spent %{time}',
+  },
+
+  // Time input unit labels
+  timeUnit: {
+    hours: 'h',
+    minutes: 'min',
   },
 
   // Accessibility / controls

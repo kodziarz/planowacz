@@ -24,7 +24,7 @@ export default function QueuesScreen() {
     router.push({ pathname: '/task/[id]', params: { id: task.id } });
 
   return (
-    <Screen title={t('tab.queues')}>
+    <Screen title={t('tab.queues')} back>
       {queues.length === 0 ? (
         <ThemedText type="small" themeColor="textSecondary">
           {t('queues.empty')}

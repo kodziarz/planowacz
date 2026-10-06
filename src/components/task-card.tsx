@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { QuickAddTimeButton } from './quick-add-time';
 import { StatusChip } from './status-control';
 import { ThemedText } from './themed-text';
 import { ViolationMarker } from './violation-marker';
@@ -16,16 +17,29 @@ export interface TaskCardProps {
   category?: Category | null;
   /** True when violation points > 0 — marked colorblind-friendly (badge + border). Never show the number. */
   marked?: boolean;
+  /** Hides the quick time logging button. */
+  quickAdd?: boolean;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 }
 
-export function TaskCard({ task, parent, category, marked = false, onPress, style }: TaskCardProps) {
+export function TaskCard({
+  task,
+  parent,
+  category,
+  marked = false,
+  quickAdd = true,
+  onPress,
+  style,
+}: TaskCardProps) {
   const theme = useTheme();
   const { t } = useI18n();
 
   const borderColor = marked ? theme.warningBorder : theme.border;
   const backgroundColor = marked ? theme.warningBg : theme.backgroundElement;
+  const spentMinutes = task.timeEntries.reduce((total, entry) => total + entry.minutes, 0);
+  const canLogTime =
+    quickAdd && (task.status === 'pending' || task.status === 'inProgress');
 
   return (
     <Pressable
@@ -87,6 +101,20 @@ export function TaskCard({ task, parent, category, marked = false, onPress, styl
             </ThemedText>
           </View>
         )}
+
+        {spentMinutes > 0 && (
+          <View style={[styles.metaChip, { backgroundColor: theme.backgroundSelected }]}>
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('meta.spent', { time: formatMinutes(spentMinutes, t) })}
+            </ThemedText>
+          </View>
+        )}
+
+        {canLogTime && (
+          <View style={styles.quickAdd}>
+            <QuickAddTimeButton task={task} />
+          </View>
+        )}
       </View>
     </Pressable>
   );
@@ -133,5 +161,8 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     borderWidth: 0.5,
+  },
+  quickAdd: {
+    marginLeft: 'auto',
   },
 });

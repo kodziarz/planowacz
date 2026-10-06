@@ -18,17 +18,14 @@ export default function AppTabs() {
           <TabTrigger name="home" href="/" asChild>
             <TabButton>{t('tab.availability')}</TabButton>
           </TabTrigger>
-          <TabTrigger name="queues" href="/queues" asChild>
-            <TabButton>{t('tab.queues')}</TabButton>
-          </TabTrigger>
           <TabTrigger name="tasks" href="/tasks" asChild>
             <TabButton>{t('tab.tasks')}</TabButton>
           </TabTrigger>
-          <TabTrigger name="categories" href="/categories" asChild>
-            <TabButton>{t('tab.categories')}</TabButton>
+          <TabTrigger name="situations" href="/situations" asChild>
+            <TabButton>{t('tab.situations')}</TabButton>
           </TabTrigger>
-          <TabTrigger name="settings" href="/settings" asChild>
-            <TabButton>{t('tab.settings')}</TabButton>
+          <TabTrigger name="more" href="/more" asChild>
+            <TabButton>{t('tab.more')}</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>

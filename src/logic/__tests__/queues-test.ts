@@ -13,6 +13,8 @@ function task(overrides: Partial<Task> & Pick<Task, 'id'>): Task {
     granularityMinutes: null,
     parentId: null,
     status: 'pending',
+    description: null,
+    timeEntries: [],
     createdAt: NOW,
     completedAt: null,
     ...overrides,
@@ -47,5 +49,46 @@ describe('buildQueues', () => {
   test('tasks ordered by creation time, older first', () => {
     const q1 = buildQueues(tasks).find((q) => q.priority === 1)!;
     expect(q1.tasks.map((t) => t.id)).toEqual(['b', 'c']);
+  });
+});
+
+describe('non-leaf visibility', () => {
+  test('active parent with an active descendant is hidden, the leaf stays', () => {
+    const list = [
+      task({ id: 'p', priority: 1 }),
+      task({ id: 'c', priority: 1, parentId: 'p', status: 'inProgress' }),
+    ];
+    const queued = buildQueues(list).flatMap((q) => q.tasks.map((t) => t.id));
+    expect(queued).toEqual(['c']);
+  });
+
+  test('active parent with all descendants done/cancelled is shown', () => {
+    const list = [
+      task({ id: 'p', priority: 1 }),
+      task({ id: 'c1', priority: 1, parentId: 'p', status: 'done', completedAt: NOW }),
+      task({ id: 'c2', priority: 1, parentId: 'p', status: 'cancelled' }),
+      task({ id: 'gc', priority: 1, parentId: 'c1', status: 'done', completedAt: NOW }),
+    ];
+    const queued = buildQueues(list).flatMap((q) => q.tasks.map((t) => t.id));
+    expect(queued).toEqual(['p']);
+  });
+
+  test('active parent with a single pending grandchild is hidden', () => {
+    const list = [
+      task({ id: 'p', priority: 1 }),
+      task({ id: 'mid', priority: 1, parentId: 'p', status: 'done', completedAt: NOW }),
+      task({ id: 'leaf', priority: 1, parentId: 'mid', status: 'pending' }),
+    ];
+    const queued = buildQueues(list).flatMap((q) => q.tasks.map((t) => t.id));
+    expect(queued).toEqual(['leaf']);
+  });
+
+  test('done parent with a pending child queues only the child', () => {
+    const list = [
+      task({ id: 'p', priority: 1, status: 'done', completedAt: NOW }),
+      task({ id: 'c', priority: 1, parentId: 'p', status: 'pending' }),
+    ];
+    const queued = buildQueues(list).flatMap((q) => q.tasks.map((t) => t.id));
+    expect(queued).toEqual(['c']);
   });
 });

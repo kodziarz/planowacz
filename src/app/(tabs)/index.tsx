@@ -3,28 +3,29 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppButton } from '@/components/button';
-import { FormRow } from '@/components/form-row';
 import { Screen } from '@/components/screen';
 import { TaskCard } from '@/components/task-card';
 import { ThemedText } from '@/components/themed-text';
-import { UiSlider } from '@/components/ui-slider';
+import { TimeAmountInput } from '@/components/time-amount-input';
 import { Spacing } from '@/constants/theme';
-import { MAX_TIME_MINUTES, MIN_TIME_MINUTES, TIME_STEP_MINUTES } from '@/constants/time';
 import { useI18n } from '@/i18n';
 import { rankProposals } from '@/logic/proposal';
 import { useStore } from '@/store/store-provider';
-import { formatMinutes } from '@/utils/format';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const INITIAL_VISIBLE = 3;
 const MORE_COUNT = 5;
 const NOW_REFRESH_MS = 30_000;
+const DEFAULT_AMOUNT = 30;
+const AMOUNT_MIN = 15;
+const AMOUNT_MAX = 8 * 60;
+const AMOUNT_STEP = 15;
 
 export default function AvailabilityScreen() {
   const { tasks, categories, settings } = useStore();
   const { t } = useI18n();
   const router = useRouter();
-  const [amount, setAmount] = useState(30);
+  const [amount, setAmount] = useState(DEFAULT_AMOUNT);
   const [limit, setLimit] = useState(INITIAL_VISIBLE);
   const [now, setNow] = useState(() => Date.now());
 
@@ -61,22 +62,20 @@ export default function AvailabilityScreen() {
 
   return (
     <Screen title={t('tab.availability')}>
-      <FormRow label={t('availability.availableTime')} hint={t('availability.availableTimeHint')}>
-        <ThemedText type="smallBold" style={styles.amount}>
-          {formatMinutes(amount, t)}
-        </ThemedText>
-        <UiSlider
-          value={amount}
-          onValueChange={(v) => {
-            setNow(Date.now());
-            setAmount(Math.round(v / TIME_STEP_MINUTES) * TIME_STEP_MINUTES);
-          }}
-          min={MIN_TIME_MINUTES}
-          max={MAX_TIME_MINUTES}
-          step={TIME_STEP_MINUTES}
-          testID="availability-amount"
-        />
-      </FormRow>
+      <TimeAmountInput
+        label={t('availability.availableTime')}
+        hint={t('availability.availableTimeHint')}
+        value={amount}
+        onChange={(value) => {
+          setNow(Date.now());
+          setAmount(value ?? DEFAULT_AMOUNT);
+        }}
+        required
+        min={AMOUNT_MIN}
+        max={AMOUNT_MAX}
+        step={AMOUNT_STEP}
+        testID="availability-amount"
+      />
 
       <View style={styles.section}>
         <ThemedText type="smallBold">{t('availability.proposals')}</ThemedText>
@@ -107,10 +106,6 @@ export default function AvailabilityScreen() {
 }
 
 const styles = StyleSheet.create({
-  amount: {
-    fontSize: 24,
-    height: 24
-  },
   section: {
     gap: Spacing.two,
   },

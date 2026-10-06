@@ -1,7 +1,8 @@
 /** The minimal time step for the UI is 5 minutes. */
 export const TIME_STEP_MINUTES = 5;
 export const MIN_TIME_MINUTES = 5;
-export const MAX_TIME_MINUTES = 24 * 60;
+/** Upper bound of the planned time slider. */
+export const PLANNED_MAX_MINUTES = 8 * 60;
 
 /** A single time-spent entry: 15 minutes … 3 hours, in 15-minute steps. */
 export const SPENT_MIN_MINUTES = 15;

@@ -64,7 +64,7 @@ export const en = {
     invalidTime: 'Time must be a multiple of 5 minutes.',
     created: 'Created %{date}',
     remainingOfParent: 'Remaining time of the parent task: %{time}',
-    sliderHint: 'Slide to set the planned time (5 min … remaining parent time).',
+    sliderHint: 'Slide to set the planned time (5 min … 8 h, or the remaining parent time).',
     prompts: 'Suggestions',
     description: 'Description',
     descriptionPlaceholder: 'Optional description',

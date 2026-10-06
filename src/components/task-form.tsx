@@ -13,8 +13,8 @@ import { ThemedText } from './themed-text';
 
 import {
   isValidTimeStep,
-  MAX_TIME_MINUTES,
   MIN_TIME_MINUTES,
+  PLANNED_MAX_MINUTES,
   SPENT_MAX_MINUTES,
   SPENT_MIN_MINUTES,
   SPENT_STEP_MINUTES,
@@ -240,7 +240,7 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
         error={errors.time}
         hint={hasChildren ? t('task.defaultsNote') : t('task.leafNote')}
         min={MIN_TIME_MINUTES}
-        max={sliderMax ?? MAX_TIME_MINUTES}
+        max={sliderMax != null ? Math.min(sliderMax, PLANNED_MAX_MINUTES) : PLANNED_MAX_MINUTES}
         step={TIME_STEP_MINUTES}
         sliderHint={remainingHint ?? t('task.sliderHint')}
       />
@@ -255,7 +255,7 @@ export function TaskForm({ taskId, parentId }: TaskFormProps) {
         required={!hasChildren}
         hint={t('task.granularityHint')}
         min={MIN_TIME_MINUTES}
-        max={Math.max(MIN_TIME_MINUTES, planned ?? MAX_TIME_MINUTES)}
+        max={Math.max(MIN_TIME_MINUTES, planned ?? PLANNED_MAX_MINUTES)}
         step={TIME_STEP_MINUTES}
       />
 

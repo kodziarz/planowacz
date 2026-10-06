@@ -66,7 +66,7 @@ export const pl = {
     invalidTime: 'Czas mus być wielokrotnością 5 minut.',
     created: 'Utworzono: %{date}',
     remainingOfParent: 'Pozostały czas zadania nadrzędnego: %{time}',
-    sliderHint: 'Przesuń, aby ustawić zaplanowany czas (5 min … pozostały czas rodzica).',
+    sliderHint: 'Przesuń, aby ustawić zaplanowany czas (5 min … 8 godz. lub pozostały czas rodzica).',
     prompts: 'Podpowiedzi',
     description: 'Opis',
     descriptionPlaceholder: 'Opis opcjonalny',
